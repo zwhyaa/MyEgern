@@ -1,0 +1,65 @@
+const KEY_COOKIE = '7li7li_store_cookie';
+const KEY_TOKEN = '7li7li_store_token';
+
+if (typeof $request !== 'undefined') {
+    const headers = $request.headers;
+    const cookie = headers['Cookie'] || headers['cookie'] || headers['COOKIE'];
+    const token = headers['Authorization'] || headers['authorization'] || headers['AUTHORIZATION'];
+
+    let isUpdated = false;
+
+    if (cookie && (cookie.includes('session') || cookie.includes('token') || cookie.includes('auth') || cookie.includes('id') || cookie.length > 15)) {
+        $persistentStore.write(cookie, KEY_COOKIE);
+        isUpdated = true;
+    }
+    if (token) {
+        $persistentStore.write(token, KEY_TOKEN);
+        isUpdated = true;
+    }
+
+    if (isUpdated) {
+        $notification.post('7li7li 杂货铺', '🔑 签到凭证抓取成功', '凭证已更新！无需点击签到按钮，每天 08:30 将自动为你签到。');
+    }
+    $done({});
+} else {
+    const cookie = $persistentStore.read(KEY_COOKIE);
+    const token = $persistentStore.read(KEY_TOKEN);
+
+    if (!cookie && !token) {
+        $notification.post('7li7li 杂货铺', '❌ 签到失败', '未找到登录凭证，请用 Safari 打开 store.7li7li.com 登录并刷新一次页面。');
+        $done();
+    } else {
+        const reqHeaders = {
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+            'Referer': 'https://store.7li7li.com/',
+            'Accept': 'application/json, text/plain, */*'
+        };
+
+        if (cookie) reqHeaders['Cookie'] = cookie;
+        if (token) reqHeaders['Authorization'] = token;
+
+        $httpClient.post({
+            url: 'https://store.7li7li.com/api/user/checkin',
+            headers: reqHeaders
+        }, function(error, response, data) {
+            if (error) {
+                $notification.post('7li7li 杂货铺', '❌ 签到请求失败', error.toString());
+            } else {
+                try {
+                    const res = JSON.parse(data);
+                    const msg = res.message || res.msg || res.detail || data;
+                    if (res.code === 200 || res.success || res.status === 1) {
+                        $notification.post('7li7li 杂货铺', '🎉 签到成功', msg);
+                    } else if (data.includes('已签到') || data.includes('repeat') || data.includes('already')) {
+                        $notification.post('7li7li 杂货铺', 'ℹ️ 今日已签到', msg);
+                    } else {
+                        $notification.post('7li7li 杂货铺', '🔔 签到响应结果', msg);
+                    }
+                } catch (e) {
+                    $notification.post('7li7li 杂货铺', '🔔 签到响应', data);
+                }
+            }
+            $done();
+        });
+    }
+}
