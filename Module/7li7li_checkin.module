@@ -9,13 +9,13 @@ mitm:
     - "store.7li7li.com"
 
 scriptings:
-  - http_response:
+  - http-response:
       name: "7li7li_GetCookie"
       match: "^https://store\\.7li7li\\.com/api/"
-      script_url: "https://raw.githubusercontent.com/zwhyaa/MyEgern/main/Module/7li7li_checkin.js"
-      body_required: true
+      script-url: "https://raw.githubusercontent.com/zwhyaa/MyEgern/main/Module/7li7li_checkin.js"
+      body-required: true
 
-  - schedule:
+  - cron:
       name: "7li7li_AutoCheckin"
       cron: "30 8 * * *"
-      script_url: "https://raw.githubusercontent.com/zwhyaa/MyEgern/main/Module/7li7li_checkin.js"
+      script-url: "https://raw.githubusercontent.com/zwhyaa/MyEgern/main/Module/7li7li_checkin.js"
