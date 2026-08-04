@@ -1,39 +1,39 @@
-```javascript:7li7li_checkin.js
 /**
- * 7li7li 自动签到与 Cookie 抓取脚本 (终极响应验证版)
+ * 7li7li 自动签到与 Cookie 抓取脚本 (支持 Linux Do 授权版)
  */
 
 const KEY_COOKIE = '7li7li_store_cookie';
 const KEY_TOKEN = '7li7li_store_token';
 
-// ===== 【阶段 1：响应验证抓取 (绝对确保凭证有效)】 =====
+// ===== 【阶段 1：响应验证抓取 (严格过滤第三方登录流程)】 =====
 if (typeof $response !== 'undefined') {
     try {
         const status = $response.status;
         const body = $response.body || '';
         const url = $request.url || '';
 
-        // 排除 login/register 等过渡接口，只在请求具体的“用户数据”时验证
-        if (url.includes('/user') || url.includes('/checkin') || url.includes('/profile') || url.includes('/mine') || url.includes('/info')) {
+        // 🔴 终极黑名单：只要 URL 包含登录、授权、跳转回调字眼，绝对不抓取！
+        const isBlacklisted = url.includes('/login') || url.includes('oauth') || url.includes('callback') || url.includes('linuxdo') || url.includes('/auth');
+
+        // 🟢 白名单：只有当你授权完毕返回商店，真正拉取个人资产、签到状态时才抓取
+        const isWhiteListed = url.includes('/user/info') || url.includes('/user/detail') || url.includes('/checkin') || url.endsWith('/api/user');
+
+        if (!isBlacklisted && isWhiteListed && status === 200) {
             let isValidAuth = false;
 
-            // 1. 验证服务器是否真正认可了这次请求（返回 HTTP 200）
-            if (status === 200) {
-                try {
-                    const resJson = JSON.parse(body);
-                    // 2. 确认返回的 JSON 确实是成功获取到了数据，而不是“未登录”的报错
-                    if (resJson.code === 200 || resJson.success === true || resJson.status === 1 || resJson.data) {
-                        isValidAuth = true;
-                    }
-                } catch (e) {
-                    // 如果不是 JSON，只要没提示未登录，也视为成功
-                    if (!body.includes('未登录') && !body.includes('请登录')) {
-                        isValidAuth = true;
-                    }
+            try {
+                const resJson = JSON.parse(body);
+                // 确保返回的 JSON 是真实的用户数据
+                if (resJson.code === 200 || resJson.success === true || resJson.status === 1) {
+                    isValidAuth = true;
+                }
+            } catch (e) {
+                // 非 JSON 格式兜底验证
+                if (!body.includes('未登录') && !body.includes('跳转') && body.length > 20) {
+                    isValidAuth = true;
                 }
             }
 
-            // 3. 只有服务器验证通过，才去提取真正产生作用的 Token
             if (isValidAuth) {
                 const headers = $request.headers || {};
                 const cookie = headers['Cookie'] || headers['cookie'] || headers['COOKIE'] || '';
@@ -52,14 +52,14 @@ if (typeof $response !== 'undefined') {
                 }
 
                 if (isUpdated) {
-                    $notification.post('7li7li 杂货铺', '🔑 提取到有效凭证', '服务器已验证您的登录状态！每天 08:30 将自动为您签到。');
+                    $notification.post('7li7li 杂货铺', '🔑 提取到有效凭证', 'Linux Do 授权验证通过！每天 08:30 将自动为您签到。');
                 }
             }
         }
     } catch (e) {
         console.log("Cookie 抓取脚本执行错误: " + e);
     } finally {
-        $done({}); // 确保绝对不会卡死网页加载
+        $done({});
     }
 } 
 // ===== 【阶段 2：定时签到任务】 =====
@@ -105,6 +105,5 @@ else if (typeof $request === 'undefined' && typeof $response === 'undefined') {
         });
     }
 } else {
-    // 兼容其他意外拦截，直接放行
     $done({});
 }
