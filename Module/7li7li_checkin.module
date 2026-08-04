@@ -12,12 +12,12 @@ scriptings:
   - http_request:
       name: "7li7li_GetCookie"
       match: "^https://store\\.7li7li\\.com/api/"
-      script_url: "https://cdn.jsdelivr.net/gh/zwhyaa/MyEgern@main/Module/7li7li_checkin.js"
+      script_url: "https://raw.githubusercontent.com/zwhyaa/MyEgern/main/Module/7li7li_checkin.js"
       body_required: false
       update_interval: 86400
 
   - schedule:
       name: "7li7li_AutoCheckin"
       cron: "30 8 * * *"
-      script_url: "https://cdn.jsdelivr.net/gh/zwhyaa/MyEgern@main/Module/7li7li_checkin.js"
+      script_url: "https://raw.githubusercontent.com/zwhyaa/MyEgern/main/Module/7li7li_checkin.js"
       update_interval: 86400
