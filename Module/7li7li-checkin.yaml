@@ -38,17 +38,16 @@ env_schema:
 # ---- 脚本 ----
 scriptings:
   # 每日签到 (每天早上 9 点)
+  # 注意: 不在这里写 env，env_schema 填的值会作为模块 env 自动传给脚本
   - schedule:
       name: "7li7li每日签到"
       cron: "0 9 * * *"
       script_url: "https://raw.githubusercontent.com/zwhyaa/MyEgern/main/Module/7li7li-checkin.js"
-      env:
-        SESSION_TOKEN: "{{{SESSION_TOKEN}}}"
-        CSRF_TOKEN: "{{{CSRF_TOKEN}}}"
-        CALLBACK_URL: "{{{CALLBACK_URL}}}"
+      update_interval: 600
 
-  # 捕获 Safari 登录时的 cookie (自动保活)
-  - http_response:
+  # 捕获浏览器请求中的 cookie (登录后任意请求都会携带, 自动保活)
+  - http_request:
       name: "7li7liCookie捕获"
       match: "^https://store\\.7li7li\\.com"
       script_url: "https://raw.githubusercontent.com/zwhyaa/MyEgern/main/Module/7li7li-getcookie.js"
+      update_interval: 600
