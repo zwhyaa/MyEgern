@@ -8,15 +8,15 @@
 export default async function(ctx) {
   const BASE_URL = 'https://store.7li7li.com';
 
-  // ---- 获取凭据: env 优先(模块 UI 手填, 已验证), storage 仅作回退 ----
-  const sessionToken =
-    ctx.env.SESSION_TOKEN || ctx.storage.get('session_token') || '';
-  const csrfToken =
-    ctx.env.CSRF_TOKEN || ctx.storage.get('csrf_token') || '';
-  const callbackUrl =
-    ctx.env.CALLBACK_URL ||
-    ctx.storage.get('callback_url') ||
-    'https%3A%2F%2Fstore.7li7li.com%2F';
+  // ---- 获取凭据: 硬编码(已验证有效) ----
+  // 注意: 若此 cookie 过期，直接替换下面两个值即可
+  const SESSION_TOKEN = 'eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiYjBpTVZGODQ3N0drVHFsQURuY2g2WXN2c1dvdUVxQTlpZzRYUU1JbHR4YmZ3dVdTRjUzazFQVUVOOTVkVDBsa25SWUtnTmFrWGVKV1Jwdm5UUTlMM2cifQ..c2r8W9WtH_7Ju6hXri--eg.cINW_vF-OOJPpddSlycl2k2qKv3vO-Sux3eZUV5Mx6ADiAubtaxWEZMytOt51cRMoaHZcg0FOn51tcW4H0guQfHHw9aUoX4WJzdL1fosJEn55N-FBdID9nJkEsFw3lCyVAZGkIpdnepNi9Rv9J10ObmI3PtWlQXbG3O09EoEVeVJvy9rMt1xrA6zC-yeaQyfHJAyuzcv8uk8h7xMm5fPX84B5QUH9eCis8r895LivmYm-DquxxWph9Fcqu8zdCpMeh7-WeKFD9cxq8JD9cIlA9-RbHEUWRFp7INRtt42YlFE6vq8_w7rz0YLFCw0Xlfnzy-E2YLCCchPw3bjBT30wk79j-aBKahew3KNe2fhBW4-zuHF_uNpyDml0TCdHRg2BUKa9bR2lowUN6fbGiOp9Dqe9DqKMF0MN8SZyRBM3EkNEMLvm_74V629yJE0jGCexUVXeUlV6BzMQsTdfuayXnaffHrQ_Qw8y4XT43vAhuBf-L-JxDWo-9cw99mIPGKysdPbt0nXQUQI5ah31F5NvYbUU6_f9n57ywr0fN3VYHkq5RHoUq45lHTIkHF5PogLseaXmgzVRoMX4OD5aMM_hA.YfCcQO0BzFNHiUg29r_S6U5tICAgi36PirFPmQegLLs';
+  const CSRF_TOKEN = '64fbf4cc1211934720d50e1d2f132104c64b4f23b2f64c70bb01733418caf586%7Cec823c34292239a6bceef9fd7298792943d91a6833b26507d844eddacf6ba9dd';
+  const CALLBACK_URL = 'https%3A%2F%2Fstore.7li7li.com%2F';
+
+  const sessionToken = SESSION_TOKEN;
+  const csrfToken = CSRF_TOKEN;
+  const callbackUrl = CALLBACK_URL;
 
   // 检查凭据是否已配置
   if (!sessionToken || !csrfToken) {
