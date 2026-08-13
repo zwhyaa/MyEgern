@@ -8,14 +8,14 @@
 export default async function(ctx) {
   const BASE_URL = 'https://store.7li7li.com';
 
-  // ---- 获取凭据: storage 优先(getcookie 捕获), 回退 env(模块填写) ----
+  // ---- 获取凭据: env 优先(模块 UI 手填, 已验证), storage 仅作回退 ----
   const sessionToken =
-    ctx.storage.get('session_token') || ctx.env.SESSION_TOKEN || '';
+    ctx.env.SESSION_TOKEN || ctx.storage.get('session_token') || '';
   const csrfToken =
-    ctx.storage.get('csrf_token') || ctx.env.CSRF_TOKEN || '';
+    ctx.env.CSRF_TOKEN || ctx.storage.get('csrf_token') || '';
   const callbackUrl =
-    ctx.storage.get('callback_url') ||
     ctx.env.CALLBACK_URL ||
+    ctx.storage.get('callback_url') ||
     'https%3A%2F%2Fstore.7li7li.com%2F';
 
   // 检查凭据是否已配置
