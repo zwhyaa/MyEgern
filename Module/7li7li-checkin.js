@@ -20,7 +20,7 @@ export default async function(ctx) {
 
   // 检查凭据是否已配置
   if (!sessionToken || !csrfToken) {
-    const msg = '未配置 cookie: 请在模块设置中填写 SESSION_TOKEN，或在 Safari 登录 store.7li7li.com 自动捕获';
+    const msg = `未配置 cookie: env.SESSION_TOKEN=${ctx.env.SESSION_TOKEN ? '有值(' + ctx.env.SESSION_TOKEN.slice(0, 15) + '...)' : '空'} / env.CSRF_TOKEN=${ctx.env.CSRF_TOKEN ? '有值' : '空'} / storage=${ctx.storage.get('session_token') ? '有值' : '空'}`;
     ctx.notify({
       title: '7li7li 签到配置错误',
       body: msg,
@@ -28,6 +28,13 @@ export default async function(ctx) {
     });
     return;
   }
+
+  // 【诊断】通知中显示实际使用的 token 前缀，用于排查
+  ctx.notify({
+    title: '7li7li 诊断',
+    body: `本次将使用 SESSION_TOKEN 前缀: ${sessionToken.slice(0, 20)}...\n长度: ${sessionToken.length}\n来源: ${ctx.env.SESSION_TOKEN ? 'env' : 'storage'}`,
+    sound: false,
+  });
 
   const cookie = [
     'ldc-locale=zh',
