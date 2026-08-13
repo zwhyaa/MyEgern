@@ -1,0 +1,54 @@
+# ============================================================
+# 7li7li杂货铺 签到模块 (Egern Module)
+# ============================================================
+# GitHub 仓库: https://github.com/zwhyaa/MyEgern
+# 文件位置: Module/7li7li-checkin.yaml
+#
+# 使用方式:
+#   1. 本仓库已包含全部文件 (yaml + 2 个 js 均在 Module/ 下)
+#   2. Egern → 模块 → 添加模块 → 粘贴本文件 raw URL:
+#      https://raw.githubusercontent.com/zwhyaa/MyEgern/main/Module/7li7li-checkin.yaml
+#   3. 在模块设置中填写 SESSION_TOKEN / CSRF_TOKEN
+#   4. 启用模块即可
+#
+# 功能:
+#   - schedule: 每天 9 点自动签到
+#   - http_response: 捕获 Safari 登录时的新 cookie (自动保活)
+# ============================================================
+
+name: "7li7li杂货铺签到"
+description: "7li7li杂货铺每日自动签到 + cookie 自动捕获"
+author: "zwhy"
+homepage: "https://store.7li7li.com"
+icon: "checkmark.seal.fill"
+
+# ---- 环境变量 UI: 在模块设置页自动生成输入框 ----
+env_schema:
+  SESSION_TOKEN:
+    name: "Session Token"
+    description: "__Secure-authjs.session-token 的值 (浏览器登录后从 Cookie 复制)"
+  CSRF_TOKEN:
+    name: "CSRF Token"
+    description: "__Host-authjs.csrf-token 的值 (浏览器登录后从 Cookie 复制)"
+  CALLBACK_URL:
+    name: "Callback URL"
+    description: "一般保持默认即可"
+    default_value: "https%3A%2F%2Fstore.7li7li.com%2F"
+
+# ---- 脚本 ----
+scriptings:
+  # 每日签到 (每天早上 9 点)
+  - schedule:
+      name: "7li7li每日签到"
+      cron: "0 9 * * *"
+      script_url: "https://raw.githubusercontent.com/zwhyaa/MyEgern/main/Module/7li7li-checkin.js"
+      env:
+        SESSION_TOKEN: "{{{SESSION_TOKEN}}}"
+        CSRF_TOKEN: "{{{CSRF_TOKEN}}}"
+        CALLBACK_URL: "{{{CALLBACK_URL}}}"
+
+  # 捕获 Safari 登录时的 cookie (自动保活)
+  - http_response:
+      name: "7li7liCookie捕获"
+      match: "^https://store\\.7li7li\\.com"
+      script_url: "https://raw.githubusercontent.com/zwhyaa/MyEgern/main/Module/7li7li-getcookie.js"
