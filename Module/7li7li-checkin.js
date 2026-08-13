@@ -127,6 +127,11 @@ export default async function(ctx) {
         error: result.error,
         message: msg,
       });
+      // cookie 无效时清除 storage 中的旧值，避免下次继续用坏 cookie
+      if (result.error === 'Not logged in') {
+        ctx.storage.delete('session_token');
+        ctx.storage.delete('csrf_token');
+      }
       ctx.notify({
         title: '7li7li 签到失败',
         body: msg,
